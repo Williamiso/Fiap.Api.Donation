@@ -3,8 +3,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fiap.Api.Donation.Models
 {
+    [Table("TipoProduto")]
     public class TipoProdutoModel
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TipoProdutoId { get; set; }
 
         [Required(ErrorMessage = "O nome para o tipo do produto é obrigatório.")]
@@ -18,5 +21,13 @@ namespace Fiap.Api.Donation.Models
 
         [NotMapped]
         public string? Token { get; set; }
+
+        public TipoProdutoModel() { }
+        public TipoProdutoModel(int id, string nome, string descricao)
+        {
+            TipoProdutoId = id;
+            Nome = nome;
+            Descricao = descricao;
+        }
     }
 }

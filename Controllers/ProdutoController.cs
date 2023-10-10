@@ -1,7 +1,5 @@
 ﻿using Fiap.Api.Donation.Models;
-using Fiap.Api.Donation.Repository;
 using Fiap.Api.Donation.Repository.Interface;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,30 +7,30 @@ namespace Fiap.Api.Donation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TipoProdutoController : ControllerBase
+    public class ProdutoController : Controller
     {
-        private readonly ITipoProdutoRepository tipoProdutoRepository;
+        private readonly IProdutoRepository produtoRepository;
 
-        public TipoProdutoController(ITipoProdutoRepository repository)
+        public ProdutoController(IProdutoRepository _produtoRepository)
         {
-            tipoProdutoRepository = repository;
+            produtoRepository = _produtoRepository;
         }
 
-
+        // GET: api/Produto
         [HttpGet]
-        public async Task<ActionResult<IList<TipoProdutoModel>>> Get()
+        public async Task<ActionResult<IList<ProdutoModel>>> GetProdutos()
         {
-            var tipos = await tipoProdutoRepository.FindAll();
-            if (tipos == null || tipos.Count == 0)
+            var produtos = await produtoRepository.FindAll();
+            if (produtos == null || produtos.Count == 0)
             {
                 return NoContent();
             }
 
-            return Ok(tipos);
+            return Ok(produtos);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<TipoProdutoModel>> GetTipoProdutoModel(int id)
+        public async Task<ActionResult<ProdutoModel>> GetProdutoModel(int id)
         {
             if (id == 0)
             {
@@ -40,45 +38,44 @@ namespace Fiap.Api.Donation.Controllers
             }
             else
             {
-                var tipoProduto = await tipoProdutoRepository.FindById(id);
+                var prod = await produtoRepository.FindById(id);
 
-                if (tipoProduto == null)
+                if (prod == null)
                 {
                     return NotFound(id);
                 }
                 else
                 {
-                    return Ok(tipoProduto);
+                    return Ok(prod);
                 }
             }
         }
 
-
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTipoProdutoModel(int id, TipoProdutoModel tipoProdutoModel)
+        public async Task<IActionResult> PutProdutoModel(int id, ProdutoModel produtoModel)
         {
-            if (id != tipoProdutoModel.TipoProdutoId)
+            if (id != produtoModel.TipoProdutoId)
             {
                 return BadRequest();
             }
             else
             {
-                var tipoProdutoConsulta = await tipoProdutoRepository.FindById(id);
+                var produtoConsulta = await produtoRepository.FindById(id);
 
-                if (tipoProdutoConsulta == null)
+                if (produtoConsulta == null)
                 {
                     return NotFound();
                 }
                 else
                 {
-                    tipoProdutoRepository.Update(tipoProdutoModel);
+                    produtoRepository.Update(produtoConsulta);
                     return NoContent();
                 }
             }
         }
 
         [HttpPost]
-        public async Task<ActionResult<TipoProdutoModel>> PostTipoProdutoModel(TipoProdutoModel tipoProdutoModel)
+        public async Task<ActionResult<ProdutoModel>> PostProdutoModel(ProdutoModel produtoModel)
         {
             if (!ModelState.IsValid)
             {
@@ -88,15 +85,15 @@ namespace Fiap.Api.Donation.Controllers
             try
             {
 
-                await tipoProdutoRepository.Insert(tipoProdutoModel);
+                await produtoRepository.Insert(produtoModel);
 
                 var url = Request.GetEncodedUrl().EndsWith("/") ?
                                                 Request.GetEncodedUrl() :
                                                 Request.GetEncodedUrl() + "/";
 
-                var location = new Uri(url + tipoProdutoModel.TipoProdutoId);
+                var location = new Uri(url + produtoModel.ProdutoId);
 
-                return Created(location, tipoProdutoModel);
+                return Created(location, produtoModel);
 
             }
             catch (Exception ex)
@@ -105,26 +102,26 @@ namespace Fiap.Api.Donation.Controllers
             }
         }
 
+        // DELETE: api/Produto/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTipoProdutoModel(int id)
+        public async Task<IActionResult> DeleteProdutoModel(int id)
         {
             if (id == 0)
             {
                 return BadRequest();
             }
 
-            var tipoProduto = await tipoProdutoRepository.FindById(id);
+            var produto = await produtoRepository.FindById(id);
 
-            if (tipoProduto == null)
+            if (produto == null)
             {
                 return NotFound();
             }
             else
             {
-                tipoProdutoRepository.Delete(id);
+                produtoRepository.Delete(id);
                 return NoContent();
             }
-
         }
 
 
