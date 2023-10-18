@@ -1,5 +1,8 @@
-﻿using Fiap.Api.Donation.Models;
+﻿using AutoMapper;
+using Fiap.Api.Donation.Models;
 using Fiap.Api.Donation.Repository.Interface;
+using Fiap.Api.Donation.Service;
+using Fiap.Api.Donation.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -10,46 +13,46 @@ namespace Fiap.Api.Donation.Controllers
     [ApiController]
     public class UsuarioController : ControllerBase
     {
+
         private readonly IUsuarioRepository usuarioRepository;
 
-        public UsuarioController(IUsuarioRepository _usuarioRepository)
+        private readonly IMapper mapper;
+
+        public UsuarioController(IUsuarioRepository _usuarioRepository, IMapper _mapper)
         {
             usuarioRepository = _usuarioRepository;
+            mapper = _mapper;
         }
 
 
         [HttpGet]
-        public async Task<ActionResult<IList<UsuarioModel>>> Get()
+        public async Task<ActionResult<IList<UsuarioResponseVM>>> Get()
         {
             var usuarios = await usuarioRepository.FindAll();
-
             if (usuarios == null || usuarios.Count == 0)
             {
                 return NoContent();
             }
             else
             {
-                return Ok(usuarios);
+                var resposta = mapper.Map<List<UsuarioResponseVM>>(usuarios);
+                return Ok(resposta);
             }
-
         }
 
-
         [HttpGet("{id:int}")]
-        public ActionResult<UsuarioModel> Get(int id)
+        public ActionResult<UsuarioResponseVM> Get(int id)
         {
             var usuario = usuarioRepository.FindById(id);
-
             if (usuario == null || usuario.UsuarioId == 0)
             {
                 return NotFound();
             }
             else
             {
-                return Ok(usuario);
+                var resposta = mapper.Map<UsuarioResponseVM>(usuario);
+                return Ok(resposta);
             }
-
-
         }
 
         [HttpPost]
@@ -127,14 +130,22 @@ namespace Fiap.Api.Donation.Controllers
 
         [HttpPost]
         [Route("Login")]
-        public ActionResult<UsuarioModel> Login([FromBody] UsuarioModel usuarioModel)
+        public ActionResult<LoginResponseVM> Login([FromBody] LoginRequestVM loginRequest)
         {
-            var usuario = usuarioRepository
-                .FindByEmailAndSenha(usuarioModel.EmailUsuario, usuarioModel.Senha);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var usuarioModel = mapper.Map<UsuarioModel>(loginRequest);
+            var usuario = usuarioRepository.FindByEmailAndSenha(usuarioModel);
 
             if (usuario != null)
             {
-                return Ok();
+                var response = mapper.Map<LoginResponseVM>(usuario);
+                response.Token = AuthenticationService.GetToken(usuario);
+
+                return Ok(response);
             }
             else
             {
