@@ -28,9 +28,12 @@ builder.Services.AddDbContext<DataContext>(
     options => options.UseSqlServer(connectionString).EnableSensitiveDataLogging(true)
 );
 
+#region injecao-repository
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ITipoProdutoRepository, TipoProdutoRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+builder.Services.AddScoped<ITrocaRepository, TrocaRepository>();
+#endregion
 
 #region automapper
 var mapperConfig = new AutoMapper.MapperConfiguration(c =>
@@ -41,6 +44,12 @@ var mapperConfig = new AutoMapper.MapperConfiguration(c =>
     c.CreateMap<UsuarioModel, LoginResponseVM>();
 
     c.CreateMap<UsuarioModel, UsuarioResponseVM>();
+
+    c.CreateMap<TrocaRequestVM, TrocaModel>();
+
+    c.CreateMap<ProdutoModel, ProdutoResponseVM>();
+
+    c.CreateMap<TrocaModel, TrocaResponseVM>();
 
 });
 

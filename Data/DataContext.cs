@@ -8,6 +8,7 @@ namespace Fiap.Api.Donation.Data
         public DbSet<TipoProdutoModel> TipoProdutos { get; set; }
         public DbSet<UsuarioModel> Usuarios { get; set; }
         public DbSet<ProdutoModel> Produtos { get; set; }
+        public DbSet<TrocaModel> Trocas { get; set; }
 
         public DataContext(DbContextOptions options) : base(options)
         {
